@@ -1,0 +1,52 @@
+version: 2.1
+jobs:
+  build:
+    environment:
+    docker:
+      - image: circleci/openjdk:13.0.2-jdk-buster-node-browsers
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Prepare
+          command: npm ci
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+#      - run:
+#          name: Lint
+#          command: npm run lint
+#      - run:
+#          name: Typecheck
+#          command: npm run typecheck
+      - run:
+          name: Test
+          command: npm run test
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - run:
+          name: Publish
+          command: |
+            branch=$(git rev-parse --abbrev-ref HEAD)
+            if [[ ${branch} != 'master' ]];then
+              echo "Not a master branch. Won't publish."
+            fi
+            git config user.email "ps-aux@ci.com"
+            git config user.name "ps-aux-ci"
+            export BUILD_NO=${CIRCLE_BUILD_NUM}
+            version=$(scripts/get-version.js)
+            npm version ${version} --allow-same-version --no-git-tag-version
+            npm run pub --no-git-tag-version
+workflows:
+  version: 2
+  all:
+    jobs:
+      - build:
+          context: NPM
