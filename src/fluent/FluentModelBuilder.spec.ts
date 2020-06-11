@@ -4,13 +4,9 @@ import { FluentModelBuilder } from 'src/fluent/FluentModelBuilder'
 import { InfoEntity } from 'src/test/Info.model.'
 import { AddressEntity } from 'src/test/Address.model.'
 
-it('works', () => {
-    const sut = new FluentModelBuilder([
-        PersonEntity,
-        InfoEntity,
-        AddressEntity
-    ])
+const sut = new FluentModelBuilder([PersonEntity, InfoEntity, AddressEntity])
 
+it('works', () => {
     const data: Person = {
         name: 'john',
         age: 30,
@@ -54,4 +50,17 @@ it('works', () => {
         InfoEntity.attrs.address,
         AddressEntity.attrs.city
     ])
+})
+
+type ReqPerson = Required<Person>
+
+it('Optional attributes in types are not optional FluentModel attributes', () => {
+    // Expected to be checked with typecheck not during test execution
+
+    const m = sut.of<Person>(PersonEntity)
+
+    const x = m.optionalInfo.and().address
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
+    const u = x
 })

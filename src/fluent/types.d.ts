@@ -1,7 +1,10 @@
 import { Attribute } from '@ps-aux/swagger-codegen'
 
-export type FluentModel<MType> = {
-    [P in keyof Required<MType>]: FluentModelProp<MType, MType[P]>
+export type FluentModel<EntityType> = {
+    [P in keyof Required<EntityType>]: FluentModelProp<
+        EntityType,
+        Required<EntityType>[P]
+    >
 } & {
     _meta: {
         name: string

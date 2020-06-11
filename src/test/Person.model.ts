@@ -31,6 +31,17 @@ export const PersonEntity = {
             required: true,
             validationRules: [],
             extra: {}
+        },
+        optionalInfo: {
+            name: 'optionalInfo',
+            id: 'Person.optionalInfo',
+            type: {
+                name: 'object',
+                of: 'Info'
+            },
+            required: false,
+            validationRules: [],
+            extra: {}
         }
     }
 }
