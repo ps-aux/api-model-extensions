@@ -20,6 +20,17 @@ export const PersonEntity = {
             required: true,
             validationRules: [],
             extra: {}
+        },
+        info: {
+            name: 'info',
+            id: 'Person.info',
+            type: {
+                name: 'object',
+                of: 'Info'
+            },
+            required: true,
+            validationRules: [],
+            extra: {}
         }
     }
 }

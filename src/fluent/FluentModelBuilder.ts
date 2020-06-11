@@ -40,62 +40,72 @@ export const getAttrValue = (attr: Attribute, obj: any): any => {
 }
 
 export const getAttributePathValue = (path: Attribute[], obj: any): any => {
-    console.log('getting', path, obj)
+    // console.log('getting', path, obj)
     const [first, ...rest] = path
 
     const val = getAttrValue(first, obj)
 
+    // console.log('val is', val, path)
     if (path.length === 1) return val
 
     return getAttributePathValue(rest, val)
 }
 
-export const modelProp = <MType, T>(
-    model: FluentModel<MType>,
+export const modelProp = <Ent, T>(
+    model: FluentModel<Ent>,
     getEntity: (name: string) => Entity,
     attr: Attribute,
-    prevAttr?: Attribute // TODO hackity
-): FluentModelProp<MType, T> => {
-    let props: SubProps<MType, T>
+    prev?: FluentModelProp<Ent, any>
+): FluentModelProp<Ent, T> => {
+    const path: FluentModelProp<Ent, any>[] = prev
+        ? prev.paths.fluent.slice(0)
+        : []
 
-    if (isObjectType(attr.type)) {
-        const of = attr.type.of
+    let props: SubProps<Ent, T>
 
-        const res: any = {}
+    const strPathDelimiter = '.'
 
-        const entity = getEntity(of)
+    const attrPath = prev ? [...prev.paths.attr, attr] : [attr]
+    const stringListPath = attrPath.map(p => p.name)
+    const strPath = stringListPath.join(strPathDelimiter)
 
-        Object.entries(entity.attrs).forEach(([name, a]) => {
-            res[name] = modelProp(model, getEntity, a, attr)
-        })
-
-        // @ts-ignore
-        props = res
-    }
-
-    const attrPath = [attr]
-
-    if (prevAttr) {
-        attrPath.unshift(prevAttr)
-    }
-    const path = attrPath.map(attr => attr.name)
-
-    const joinedPath = path.join('.')
-    const globalName = model._meta.name + '.' + joinedPath
-
-    return {
-        path,
-        attrPath,
+    const prop = {
         attr,
-        globalName,
+        globalName: model._meta.name + strPathDelimiter + strPath,
+        path: stringListPath,
+        paths: {
+            attr: attrPath,
+            fluent: path,
+            str: strPath
+        },
         model,
-        get: (obj: MType) => getAttributePathValue(attrPath, obj),
-        props: () => {
-            if (!props)
+        get: (obj: Ent) => getAttributePathValue(attrPath, obj),
+        and: () => {
+            if (props) return props
+            if (isObjectType(attr.type)) {
+                const of = attr.type.of
+
+                const res: any = {}
+
+                const entity = getEntity(of)
+
+                Object.entries(entity.attrs).forEach(([name, a]) => {
+                    res[name] = modelProp(model, getEntity, a, prop)
+                })
+
+                // cache
+                // @ts-ignore
+                props = res
+            } else {
                 throw new Error(`Is ${attr.type} not an composite type type`)
+            }
             return props
         }
     }
+
+    path.push(prop)
+
+    return prop
 }
 
 export class FluentModelBuilder {
@@ -118,6 +128,8 @@ export class FluentModelBuilder {
         Object.entries(m.attrs).forEach(([name, attr]) => {
             res[name] = modelProp<MType, any>(res, this.getEntity, attr)
         })
+
+        // TODO maybe traverse all path to make them calculated instead of doing it lazily at first use ?
 
         // @ts-ignore
         return res

@@ -1,1 +1,1 @@
-export { FluentModelBuilder } from './FluentModel'
+export { FluentModelBuilder } from 'src/fluent/FluentModelBuilder'

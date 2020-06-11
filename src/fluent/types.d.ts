@@ -20,6 +20,10 @@ export type FluentModelProp<MType, T> = {
     globalName: string
     get: (m: MType) => T
     path: PropertyPath
-    attrPath: Attribute[]
-    props: () => SubProps<MType, T>
+    paths: {
+        str: string
+        attr: Attribute[]
+        fluent: FluentModelProp<MType, any>[]
+    }
+    and: () => SubProps<MType, T>
 }
