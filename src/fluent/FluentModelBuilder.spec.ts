@@ -19,6 +19,13 @@ it('works', () => {
 
     const m = sut.of<Person>(PersonEntity)
 
+    expect(m._meta.leafProps).toIncludeSameMembers([
+        m.name,
+        m.age,
+        m.info.and().address.and().city,
+        m.optionalInfo.and().address.and().city
+    ])
+
     expect(m._meta.name).toBe(PersonEntity.name)
 
     const id = m.name

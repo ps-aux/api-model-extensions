@@ -6,12 +6,6 @@ import {
 } from '@ps-aux/swagger-codegen'
 import { FluentModel, FluentModelProp, SubProps } from 'src/fluent/types'
 
-export type AnyCModel = {
-    _meta: {
-        name: string
-    }
-}
-
 export const isObjectType = (t: AttrType): t is ObjectType =>
     t.name === 'object'
 
@@ -69,6 +63,8 @@ export const modelProp = <Ent, T>(
     const stringListPath = attrPath.map(p => p.name)
     const strPath = stringListPath.join(strPathDelimiter)
 
+    const composite = isObjectType(attr.type)
+
     const prop = {
         attr,
         globalName: model._meta.name + strPathDelimiter + strPath,
@@ -80,14 +76,15 @@ export const modelProp = <Ent, T>(
         },
         model,
         get: (obj: Ent) => getAttributePathValue(attrPath, obj),
+        composite,
         and: () => {
             if (props) return props
-            if (isObjectType(attr.type)) {
-                const of = attr.type.of
+            if (composite) {
+                const objAttrType = attr.type as ObjectType
 
                 const res: any = {}
 
-                const entity = getEntity(of)
+                const entity = getEntity(objAttrType.of)
 
                 Object.entries(entity.attrs).forEach(([name, a]) => {
                     res[name] = modelProp(model, getEntity, a, prop)
@@ -108,6 +105,21 @@ export const modelProp = <Ent, T>(
     return prop
 }
 
+const flattenProps = (
+    props: FluentModelProp<any, any>[]
+): FluentModelProp<any, any>[] => {
+    const res: FluentModelProp<any, any>[] = []
+
+    props.forEach(p => {
+        res.push(p)
+        if (p.composite) {
+            res.push(...flattenProps(Object.values(p.and())))
+        }
+    })
+
+    return res
+}
+
 export class FluentModelBuilder {
     constructor(private entities: Entity[]) {}
 
@@ -125,11 +137,16 @@ export class FluentModelBuilder {
             }
         }
 
+        const rootProps: FluentModelProp<MType, any>[] = []
         Object.entries(m.attrs).forEach(([name, attr]) => {
-            res[name] = modelProp<MType, any>(res, this.getEntity, attr)
+            const prop = modelProp<MType, any>(res, this.getEntity, attr)
+            rootProps.push(prop)
+            res[name] = prop
         })
 
         // TODO maybe traverse all path to make them calculated instead of doing it lazily at first use ?
+
+        res._meta.leafProps = flattenProps(rootProps).filter(p => !p.composite)
 
         // @ts-ignore
         return res

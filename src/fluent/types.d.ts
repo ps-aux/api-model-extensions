@@ -8,6 +8,7 @@ export type FluentModel<EntityType> = {
 } & {
     _meta: {
         name: string
+        leafProps: FluentModelProp<EntityType, any>[]
     }
 }
 
@@ -29,4 +30,5 @@ export type FluentModelProp<MType, T> = {
         fluent: FluentModelProp<MType, any>[]
     }
     and: () => SubProps<MType, T>
+    composite: boolean
 }
