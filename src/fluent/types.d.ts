@@ -8,7 +8,8 @@ export type FluentModel<EntityType> = {
 } & {
     _meta: {
         name: string
-        leafProps: FluentModelProp<EntityType, any>[]
+        rootProps: FluentModelProp<EntityType, any>[]
+        props: FluentModelProp<EntityType, any>[]
     }
 }
 
@@ -22,7 +23,7 @@ export type FluentModelProp<MType, T> = {
     model: FluentModel<MType>
     attr: Attribute
     globalName: string
-    get: (m: MType) => T
+    get: (m: MType, checkRequired?: boolean) => T
     path: PropertyPath
     paths: {
         str: string
@@ -31,4 +32,5 @@ export type FluentModelProp<MType, T> = {
     }
     and: () => SubProps<MType, T>
     composite: boolean
+    children: () => FluentModelProp<any, any>[]
 }

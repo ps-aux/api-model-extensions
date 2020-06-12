@@ -9,10 +9,14 @@ import { FluentModel, FluentModelProp, SubProps } from 'src/fluent/types'
 export const isObjectType = (t: AttrType): t is ObjectType =>
     t.name === 'object'
 
-export const getAttrValue = (attr: Attribute, obj: any): any => {
+export const getAttrValue = (
+    attr: Attribute,
+    obj: any,
+    checkRequired = true
+): any => {
     const val = obj[attr.name]
 
-    if (val === undefined) {
+    if (checkRequired && val === undefined) {
         // TODO make this runtime checks disablebable - unnecessary perf hit in large tables
         // Check if the object isn't illegal
         if (!(attr.name in obj))
@@ -33,16 +37,21 @@ export const getAttrValue = (attr: Attribute, obj: any): any => {
     return val
 }
 
-export const getAttributePathValue = (path: Attribute[], obj: any): any => {
-    // console.log('getting', path, obj)
+const getAttributePathValue = (
+    path: Attribute[],
+    obj: any,
+    checkRequired = true
+): any => {
     const [first, ...rest] = path
 
-    const val = getAttrValue(first, obj)
+    const val = getAttrValue(first, obj, checkRequired)
 
-    // console.log('val is', val, path)
     if (path.length === 1) return val
 
-    return getAttributePathValue(rest, val)
+    // Is composite and is null/undefined.
+    if (val == null && !checkRequired) return val
+    // If is null/undefined let it fail on required check later
+    return getAttributePathValue(rest, val, checkRequired)
 }
 
 export const modelProp = <Ent, T>(
@@ -75,32 +84,33 @@ export const modelProp = <Ent, T>(
             str: strPath
         },
         model,
-        get: (obj: Ent) => getAttributePathValue(attrPath, obj),
+        get: (obj: Ent, checkRequired = true) =>
+            getAttributePathValue(attrPath, obj, checkRequired),
         composite,
         and: () => {
             if (props) return props
-            if (composite) {
-                const objAttrType = attr.type as ObjectType
-
-                const res: any = {}
-
-                const entity = getEntity(objAttrType.of)
-
-                Object.entries(entity.attrs).forEach(([name, a]) => {
-                    res[name] = modelProp(model, getEntity, a, prop)
-                })
-
-                // cache
-                // @ts-ignore
-                props = res
-            } else {
-                throw new Error(`Is ${attr.type} not an composite type type`)
-            }
-            return props
-        }
+            throw new Error(`Is ${attr.type} not an composite type type`)
+        },
+        children: () => Object.values(prop.and()) as FluentModelProp<Ent, any>[]
     }
 
     path.push(prop)
+
+    if (composite) {
+        const objAttrType = attr.type as ObjectType
+
+        const res: any = {}
+
+        const entity = getEntity(objAttrType.of)
+
+        Object.entries(entity.attrs).forEach(([name, a]) => {
+            res[name] = modelProp(model, getEntity, a, prop)
+        })
+
+        // cache
+        // @ts-ignore
+        props = res
+    }
 
     return prop
 }
@@ -146,7 +156,13 @@ export class FluentModelBuilder {
 
         // TODO maybe traverse all path to make them calculated instead of doing it lazily at first use ?
 
-        res._meta.leafProps = flattenProps(rootProps).filter(p => !p.composite)
+        const allProps = flattenProps(rootProps)
+        res._meta.props = allProps
+        res._meta.rootProps = rootProps
+
+        allProps.forEach(p => {
+            if (p.composite) p.and() // Preload subprops
+        })
 
         // @ts-ignore
         return res
