@@ -21,22 +21,17 @@ it('works', () => {
 
     const m = sut.of<Person>(PersonEntity)
 
-    expect(m._meta.rootProps).toIncludeSameMembers([
-        m.name,
-        m.age,
-        m.info,
-        m.optionalInfo
-    ])
+    const rootProps = [m.name, m.age, m.info, m.optionalInfo, m.optional]
+    expect(m._meta.rootProps).toIncludeSameMembers(rootProps)
 
     expect(m._meta.props).toIncludeSameMembers([
-        m.name,
-        m.age,
-        m.info,
-        m.optionalInfo,
+        ...rootProps,
         m.info.and().address,
-        m.optionalInfo.and().address,
         m.info.and().address.and().city,
-        m.optionalInfo.and().address.and().city
+        m.info.and().address.and().number,
+        m.optionalInfo.and().address,
+        m.optionalInfo.and().address.and().city,
+        m.optionalInfo.and().address.and().number
     ])
 
     expect(m._meta.name).toBe(PersonEntity.name)
@@ -65,7 +60,10 @@ it('works', () => {
         city: 'Bratislava'
     })
 
-    expect(address.children()).toIncludeSameMembers([address.and().city])
+    expect(address.children()).toIncludeSameMembers([
+        address.and().city,
+        address.and().number
+    ])
 
     expect(city.paths.attr).toEqual([
         PersonEntity.attrs.info,
