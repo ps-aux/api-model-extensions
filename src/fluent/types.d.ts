@@ -19,6 +19,8 @@ export type SubProps<MType, T> = {
 
 export type PropertyPath = string[]
 
+export type PrimitiveType = string | number | Date
+
 export type FluentModelProp<MType, T> = {
     model: FluentModel<MType>
     attr: Attribute
@@ -30,7 +32,7 @@ export type FluentModelProp<MType, T> = {
         attr: Attribute[]
         fluent: FluentModelProp<MType, any>[]
     }
-    and: () => SubProps<MType, T>
+    and: () => T extends PrimitiveType ? void : SubProps<MType, T>
     composite: boolean
     children: () => FluentModelProp<any, any>[]
 }

@@ -84,10 +84,15 @@ it('Optional attributes in types are not optional FluentModel attributes', () =>
         string
     > = m.optionalInfo.and().address.and().number
 
+    const optionalAsAny: FluentModelProp<
+        Person,
+        any
+    > = m.optionalInfo.and().address.and().number
+
     const optional2: FluentModelProp<Person, Address> = m.optionalInfo.and()
         .address
 
-    doNothing(optional, optional2)
+    doNothing(optional, optional2, optionalAsAny)
 })
 
 // instead of linter annotations
