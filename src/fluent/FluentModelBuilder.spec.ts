@@ -81,7 +81,7 @@ it('Optional attributes in types are not optional FluentModel attributes', () =>
 
     const optional: FluentModelProp<
         Person,
-        string
+        any
     > = m.optionalInfo.and().address.and().number
 
     const optionalAsAny: FluentModelProp<

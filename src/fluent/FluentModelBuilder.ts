@@ -112,6 +112,7 @@ export const modelProp = <Ent, T>(
         props = res
     }
 
+    // @ts-ignore TODO
     return prop
 }
 
@@ -123,6 +124,7 @@ const flattenProps = (
     props.forEach(p => {
         res.push(p)
         if (p.composite) {
+            // @ts-ignore TODO
             res.push(...flattenProps(Object.values(p.and())))
         }
     })

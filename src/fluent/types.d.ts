@@ -14,7 +14,7 @@ export type FluentModel<EntityType> = {
 }
 
 export type SubProps<MType, T> = {
-    [P in keyof Required<T>]: FluentModelProp<MType, Required<T>[P]>
+    [P in keyof Required<T>]: FluentModelProp<MType, T[P]>
 }
 
 export type PropertyPath = string[]
@@ -25,14 +25,21 @@ export type FluentModelProp<MType, T> = {
     model: FluentModel<MType>
     attr: Attribute
     globalName: string
-    get: (m: MType, checkRequired?: boolean) => T
+    get: (
+        m: MType,
+        checkRequired?: boolean
+    ) => T extends undefined ? NonNullable<T> | null : T // We expect null for no values. TODO maybe change in model generation ?
     path: PropertyPath
     paths: {
         str: string
         attr: Attribute[]
         fluent: FluentModelProp<MType, any>[]
     }
-    and: () => T extends PrimitiveType ? void : SubProps<MType, T>
+    and: () => T extends PrimitiveType
+        ? void
+        : T extends null
+        ? SubProps<MType, NonNullable<T>>
+        : SubProps<MType, T>
     composite: boolean
-    children: () => FluentModelProp<any, any>[]
+    children: () => FluentModelProp<MType, any>[]
 }

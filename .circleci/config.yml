@@ -16,12 +16,12 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-#      - run:
-#          name: Lint
-#          command: npm run lint
-#      - run:
-#          name: Typecheck
-#          command: npm run typecheck
+      - run:
+          name: Lint
+          command: npm run lint
+      - run:
+          name: Typecheck
+          command: npm run typecheck
       - run:
           name: Test
           command: npm run test
