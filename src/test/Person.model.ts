@@ -11,6 +11,16 @@ export const PersonEntity = {
             validationRules: [],
             extra: {}
         },
+        optional: {
+            name: 'name',
+            id: 'Person.optional',
+            type: {
+                name: 'string'
+            },
+            required: false,
+            validationRules: [],
+            extra: {}
+        },
         age: {
             name: 'age',
             id: 'Person.age',

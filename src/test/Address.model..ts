@@ -10,6 +10,16 @@ export const AddressEntity = {
             required: true,
             validationRules: [],
             extra: {}
+        },
+        number: {
+            name: 'number',
+            id: 'Address.number',
+            type: {
+                name: 'string'
+            },
+            required: false,
+            validationRules: [],
+            extra: {}
         }
     }
 }

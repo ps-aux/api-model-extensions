@@ -3,6 +3,8 @@ import { Person } from 'src/test/Person.type'
 import { FluentModelBuilder } from 'src/fluent/FluentModelBuilder'
 import { InfoEntity } from 'src/test/Info.model.'
 import { AddressEntity } from 'src/test/Address.model.'
+import { FluentModelProp } from 'src'
+import { Address } from 'src/test/Address.type'
 
 const sut = new FluentModelBuilder([PersonEntity, InfoEntity, AddressEntity])
 
@@ -79,8 +81,18 @@ it('Optional attributes in types are not optional FluentModel attributes', () =>
 
     const m = sut.of<Person>(PersonEntity)
 
-    const x = m.optionalInfo.and().address
+    const optional: FluentModelProp<
+        Person,
+        string
+    > = m.optionalInfo.and().address.and().number
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
-    const u = x
+    const optional2: FluentModelProp<Person, Address> = m.optionalInfo.and()
+        .address
+
+    doNothing(optional, optional2)
 })
+
+// instead of linter annotations
+const doNothing = (...all: any[]) => {
+    // no op
+}

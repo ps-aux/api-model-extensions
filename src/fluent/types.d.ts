@@ -14,7 +14,7 @@ export type FluentModel<EntityType> = {
 }
 
 export type SubProps<MType, T> = {
-    [P in keyof T]: FluentModelProp<MType, T[P]>
+    [P in keyof Required<T>]: FluentModelProp<MType, Required<T>[P]>
 }
 
 export type PropertyPath = string[]

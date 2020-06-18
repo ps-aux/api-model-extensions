@@ -5,4 +5,5 @@ export type Person = {
     age: number
     info: Info
     optionalInfo?: Info
+    optional?: string
 }
