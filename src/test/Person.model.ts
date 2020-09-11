@@ -42,6 +42,16 @@ export const PersonEntity = {
             validationRules: [],
             extra: {}
         },
+        married: {
+            name: 'married',
+            id: 'Person.married',
+            type: {
+                name: 'boolean'
+            },
+            required: true,
+            validationRules: [],
+            extra: {}
+        },
         optionalInfo: {
             name: 'optionalInfo',
             id: 'Person.optionalInfo',

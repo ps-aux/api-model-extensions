@@ -12,6 +12,7 @@ it('works', () => {
     const data: Person = {
         name: 'john',
         age: 30,
+        married: true,
         info: {
             address: {
                 city: 'Bratislava'
@@ -92,7 +93,15 @@ it('Optional attributes in types are not optional FluentModel attributes', () =>
     const optional2: FluentModelProp<Person, Address> = m.optionalInfo.and()
         .address
 
-    doNothing(optional, optional2, optionalAsAny)
+    // Test types TODO - dirty
+    // number
+    let prop: FluentModelProp<Person, any> = m.age
+    // string
+    prop = m.name
+    // boolean
+    prop = m.married
+
+    doNothing(optional, optional2, optionalAsAny, prop)
 })
 
 // instead of linter annotations

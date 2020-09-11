@@ -19,7 +19,7 @@ export type SubProps<MType, T> = {
 
 export type PropertyPath = string[]
 
-export type PrimitiveType = string | number | Date
+export type PrimitiveType = string | number | Date | boolean
 
 export type FluentModelProp<MType, T> = {
     model: FluentModel<MType>
