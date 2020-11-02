@@ -42,4 +42,5 @@ export type FluentModelProp<MType, T> = {
         : SubProps<MType, T>
     composite: boolean
     children: () => FluentModelProp<MType, any>[]
+    attrModel: () => FluentModel<any> // TODO somehow manage to get generics working her
 }

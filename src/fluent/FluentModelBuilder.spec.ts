@@ -22,7 +22,14 @@ it('works', () => {
 
     const m = sut.of<Person>(PersonEntity)
 
-    const rootProps = [m.name, m.age, m.info, m.optionalInfo, m.optional, m.married]
+    const rootProps = [
+        m.name,
+        m.age,
+        m.info,
+        m.optionalInfo,
+        m.optional,
+        m.married
+    ]
     expect(m._meta.rootProps).toIncludeSameMembers(rootProps)
 
     expect(m._meta.props).toIncludeSameMembers([

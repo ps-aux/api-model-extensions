@@ -2,12 +2,15 @@ import {
     Attribute,
     AttrType,
     Entity,
+    ListType,
     ObjectType
 } from '@ps-aux/swagger-codegen'
 import { FluentModel, FluentModelProp, SubProps } from 'src/fluent/types'
 
 export const isObjectType = (t: AttrType): t is ObjectType =>
     t.name === 'object'
+
+export const isListType = (t: AttrType): t is ListType<any> => t.name === 'list'
 
 export const getAttrValue = (
     attr: Attribute,
@@ -58,6 +61,7 @@ export const modelProp = <Ent, T>(
     model: FluentModel<Ent>,
     getEntity: (name: string) => Entity,
     attr: Attribute,
+    findModel: (name: string) => FluentModel<any>,
     prev?: FluentModelProp<Ent, any>
 ): FluentModelProp<Ent, T> => {
     const path: FluentModelProp<Ent, any>[] = prev
@@ -91,7 +95,23 @@ export const modelProp = <Ent, T>(
             if (props) return props
             throw new Error(`Is ${attr.type} not an composite type type`)
         },
-        children: () => Object.values(prop.and()) as FluentModelProp<Ent, any>[]
+        children: () =>
+            Object.values(prop.and()) as FluentModelProp<Ent, any>[],
+        attrModel: () => {
+            if (isObjectType(attr.type)) {
+                const entityName = attr.type.of
+                return findModel(entityName)
+            }
+            if (isListType(attr.type)) {
+                const entityName = attr.type.of.of
+                return findModel(entityName)
+            }
+            throw new Error(
+                `Attribute ${JSON.stringify(
+                    attr
+                )} is not of object or list type`
+            )
+        }
     }
 
     path.push(prop)
@@ -104,7 +124,7 @@ export const modelProp = <Ent, T>(
         const entity = getEntity(objAttrType.of)
 
         Object.entries(entity.attrs).forEach(([name, a]) => {
-            res[name] = modelProp(model, getEntity, a, prop)
+            res[name] = modelProp(model, getEntity, a, findModel, prop)
         })
 
         // cache
@@ -133,6 +153,8 @@ const flattenProps = (
 }
 
 export class FluentModelBuilder {
+    private memo: Map<string, FluentModel<any>> = new Map()
+
     constructor(private entities: Entity[]) {}
 
     private getEntity = (name: string): Entity => {
@@ -142,7 +164,16 @@ export class FluentModelBuilder {
         return e
     }
 
+    private ofByName = (name: string): FluentModel<any> => {
+        const entity = this.getEntity(name)
+        return this.of(entity)
+    }
+
     of = <MType>(m: Entity): FluentModel<MType> => {
+        // First check if it is memoized
+        const memoized = this.memo.get(m.name)
+        if (memoized) return memoized as FluentModel<MType>
+
         const res: any = {
             _meta: {
                 name: m.name
@@ -151,7 +182,12 @@ export class FluentModelBuilder {
 
         const rootProps: FluentModelProp<MType, any>[] = []
         Object.entries(m.attrs).forEach(([name, attr]) => {
-            const prop = modelProp<MType, any>(res, this.getEntity, attr)
+            const prop = modelProp<MType, any>(
+                res,
+                this.getEntity,
+                attr,
+                this.ofByName
+            )
             rootProps.push(prop)
             res[name] = prop
         })
@@ -167,6 +203,8 @@ export class FluentModelBuilder {
         })
 
         // @ts-ignore
-        return res
+        const typedRes: FluentModel<MType> = res
+        this.memo.set(m.name, typedRes)
+        return typedRes
     }
 }
