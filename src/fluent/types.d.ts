@@ -1,5 +1,7 @@
 import { Attribute } from '@ps-aux/swagger-codegen'
 
+export type PropertyPath = string[]
+
 export type FluentModel<EntityType> = {
     [P in keyof Required<EntityType>]: FluentModelProp<
         EntityType,
@@ -12,14 +14,6 @@ export type FluentModel<EntityType> = {
         props: FluentModelProp<EntityType, any>[]
     }
 }
-
-export type SubProps<MType, T> = {
-    [P in keyof Required<T>]: FluentModelProp<MType, T[P]>
-}
-
-export type PropertyPath = string[]
-
-export type PrimitiveType = string | number | Date | boolean
 
 export type FluentModelProp<MType, T> = {
     model: FluentModel<MType>
@@ -44,3 +38,9 @@ export type FluentModelProp<MType, T> = {
     children: () => FluentModelProp<MType, any>[]
     attrModel: () => FluentModel<any> // TODO somehow manage to get generics working her
 }
+
+export type SubProps<MType, T> = {
+    [P in keyof Required<T>]: FluentModelProp<MType, T[P]>
+}
+
+export type PrimitiveType = string | number | Date | boolean

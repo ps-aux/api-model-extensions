@@ -14,7 +14,7 @@ export const isListType = (t: AttrType): t is ListType<any> => t.name === 'list'
 
 export const getAttrValue = (
     attr: Attribute,
-    obj: any,
+    obj: Record<string, unknown>,
     checkRequired = true
 ): any => {
     const val = obj[attr.name]

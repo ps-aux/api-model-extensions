@@ -80,8 +80,6 @@ it('works', () => {
     ])
 })
 
-type ReqPerson = Required<Person>
-
 it('Optional attributes in types are not optional FluentModel attributes', () => {
     // Expected to be checked with typecheck not during test execution
 

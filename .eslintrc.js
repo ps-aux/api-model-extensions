@@ -31,6 +31,9 @@ module.exports = {
         '@typescript-eslint/explicit-member-accessibility': 'off',
         // Bcs of Typescript
         'no-useless-constructor': 'off',
+        // Cyclic types definitions
+        'no-use-before-define': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off'
     },
     overrides: [
         {
@@ -66,6 +69,5 @@ module.exports = {
         }
     ],
 
-    settings: {
-    }
+    settings: {}
 }
