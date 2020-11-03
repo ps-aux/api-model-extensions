@@ -97,20 +97,8 @@ export const modelProp = <Ent, T>(
         },
         children: () =>
             Object.values(prop.and()) as FluentModelProp<Ent, any>[],
-        attrModel: () => {
-            if (isObjectType(attr.type)) {
-                const entityName = attr.type.of
-                return findModel(entityName)
-            }
-            if (isListType(attr.type)) {
-                const entityName = attr.type.of.of
-                return findModel(entityName)
-            }
-            throw new Error(
-                `Attribute ${JSON.stringify(
-                    attr
-                )} is not of object or list type`
-            )
+        modelOf: (entityName: string) => {
+            return findModel(entityName)
         }
     }
 

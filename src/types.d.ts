@@ -1,5 +1,5 @@
 import { Entity } from '@ps-aux/swagger-codegen'
-import { FluentModel, FluentModelProp } from './fluent/types'
+import { FluentModel } from './fluent/types'
 
 export {
     FluentModel,
@@ -12,10 +12,12 @@ export type CreateFluentModelBuilder = (
     entities: Entity[]
 ) => FluentModelBuilder
 
+export type MapObjectValue = (val: any, info: { type: { name: string } }) => any
+
 // Generics bcs it otherwise doesn't take  FluentModel<any> TODO
 export type MapObjectValues = <T = any>(
     m: FluentModel<T>,
-    map: (val: any, prop: FluentModelProp<T, any>) => any,
+    map: MapObjectValue,
     obj: any
 ) => any
 

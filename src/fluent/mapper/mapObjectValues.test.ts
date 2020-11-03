@@ -112,6 +112,48 @@ const Foo = {
             required: true,
             validationRules: [],
             extra: {}
+        },
+        nonObjectList: {
+            name: 'nonObjectList',
+            id: 'nonObjectList',
+            type: {
+                name: 'list',
+                of: {
+                    name: 'date'
+                }
+            },
+            required: true,
+            validationRules: [],
+            extra: {}
+        },
+        nonMappedList: {
+            name: 'nonMappedList',
+            id: 'nonMappedList',
+            type: {
+                name: 'list',
+                of: {
+                    name: 'string'
+                }
+            },
+            required: true,
+            validationRules: [],
+            extra: {}
+        },
+        listOfList: {
+            name: 'listOfList',
+            id: 'listOfList',
+            type: {
+                name: 'list',
+                of: {
+                    name: 'list',
+                    of: {
+                        name: 'date'
+                    }
+                }
+            },
+            required: true,
+            validationRules: [],
+            extra: {}
         }
     }
 }
@@ -155,12 +197,15 @@ it('test', () => {
                     a: 'not-mapped'
                 }
             }
-        ]
+        ],
+        nonObjectList: ['not-mapped'],
+        nonMappedList: ['foo'],
+        listOfList: [['not-mapped']]
     }
     const res = mapObjectValues(
         model,
-        (v, p) => {
-            if (p.attr.type.name === 'date') return 'mapped'
+        (v, info) => {
+            if (info.type.name === 'date') return 'mapped'
             return v
         },
         obj
@@ -184,6 +229,9 @@ it('test', () => {
                     a: 'mapped'
                 }
             }
-        ]
+        ],
+        nonObjectList: ['mapped'],
+        nonMappedList: ['foo'],
+        listOfList: [['mapped']]
     })
 })
