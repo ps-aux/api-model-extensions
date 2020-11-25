@@ -52,7 +52,7 @@ const getAttributePathValue = (
     if (path.length === 1) return val
 
     // Is composite and is null/undefined.
-    if (val == null && !checkRequired) return val
+    if (val == null) return val
     // If is null/undefined let it fail on required check later
     return getAttributePathValue(rest, val, checkRequired)
 }

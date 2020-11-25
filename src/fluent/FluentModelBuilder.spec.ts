@@ -17,7 +17,8 @@ it('works', () => {
             address: {
                 city: 'Bratislava'
             }
-        }
+        },
+        optionalInfo: undefined
     }
 
     const m = sut.of<Person>(PersonEntity)
@@ -67,6 +68,9 @@ it('works', () => {
     expect(address.get(data)).toEqual({
         city: 'Bratislava'
     })
+
+    // Nullable
+    expect(m.optionalInfo.and().address.get(data)).toBeUndefined()
 
     expect(address.children()).toIncludeSameMembers([
         address.and().city,
