@@ -71,6 +71,7 @@ it('works', () => {
 
     // Nullable
     expect(m.optionalInfo.and().address.get(data)).toBeUndefined()
+    expect(m.optionalInfo.and().address.and().city.get(data)).toBeUndefined()
 
     expect(address.children()).toIncludeSameMembers([
         address.and().city,
