@@ -1,6 +1,6 @@
 {
     "name": "@ps-aux/api-model-extensions",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "description": "",
     "module": "lib/index.es.js",
     "js:next": "lib/index.es.js",
